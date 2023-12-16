@@ -45,30 +45,27 @@ def calcul_stats( text):
 
 def affiche_stats( stats):
     """affiche les statistiques du modèle de Markov"""
-    string = ""
+
     for key,values in stats.items():
-        string += f'"{key}" est suivi par '
-        string += " et ".join([f'"{k}" à {p*100}%' for k,p in values.items()])
-        string += '\n'            
-    return string
+        print( f'"{key}" est suivi par ', end='')
+        print( " et ".join([f'"{k}" à {p*100}%' for k,p in values.items()]))
+    print()
+
 
 
 """deuxieme partie du programme
 """
 
 def pick_next_word( distrib):
-    """choisit un mot suivant les statistiques"""
-    
-    """
+    """choisit un mot suivant les statistiques
+
     choisit le mot suivant en fonction du mot donné et des probabilités du modèle.
     """
     
-    probabilities = distrib
-    
+    probabilities = distrib    
     # Si le mot n'est pas dans le modèle, retourner une chaîne vide
     if not probabilities:
-        return ''
-    
+        return ''    
     words, probs = zip(*probabilities.items())
     return random.choices(words, weights=probs, k=1)[0]
 
@@ -98,11 +95,12 @@ def main():
     
     stats = calcul_stats(test_text)
     
-    print(affiche_stats(stats))
+    affiche_stats(stats)
     
+    generated_text = generate_text(stats, start_word='hommes', max_length=10)
     
+    print("Generated text:",generated_text)
     
-    print("Generated text:",generate_text(stats, start_word='hommes', max_length=10))
 
 
 if __name__ == "__main__":
