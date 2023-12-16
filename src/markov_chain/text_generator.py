@@ -42,10 +42,23 @@ def calcul_stats( text):
             
     return stats
 
+
+def affiche_stats( stats):
+    """affiche les statistiques du modèle de Markov"""
+    string = ""
+    for key,values in stats.items():
+        string += f'"{key}" est suivi par '
+        string += " et ".join([f'"{k}" à {p*100}%' for k,p in values.items()])
+        string += '\n'
+            
+    return string
+
 def main():
     test_text = "les hommes Libres peuvent rester libres ou bien vendre leur liberté"
     
-    print(calcul_stats(test_text))
+    stats = calcul_stats(test_text)
+    
+    print(affiche_stats(stats))
 
 
 if __name__ == "__main__":
