@@ -1,4 +1,5 @@
 from collections import defaultdict, Counter
+import random
 
 """premeire partie du programme
 """
@@ -11,35 +12,34 @@ def tokenize( text):
 def make_bigrams( text):
     """ creation des bigrams à partir de text"""
     
-    tokens = tokenize(text)
+    tokens = tokenize(text)    
+    bigram = [(t1, t2) for t1, t2 in zip(tokens, tokens[1:])]
     
-    return [(t1, t2) for t1, t2 in zip(tokens, tokens[1:])]
+    # ajouter le dernier token avec une chaîne vide si tokens n'est pas vide
+    if tokens:
+        bigram.append((tokens[-1], ''))
+    return bigram
         
 
 def calcul_stats( text):
     """
     calcule les statistiques du modèle de Markov à partir du texte donné.
-    """
-    
+    """    
     # Créer des bigrammes à partir du texte
-    bigrams = make_bigrams(text)
-    
+    bigrams = make_bigrams(text)    
     # Compter les bigrammes
     bigram_counts = Counter(bigrams)
     
     stats = {}
-
     for (first_word, second_word), count in bigram_counts.items():
         if first_word not in stats:
             stats[first_word] = defaultdict(int)
         stats[first_word][second_word] += count
-
     # normaliser les probabilités
     for first_word, second_word_counts in stats.items():
         total_count = sum(second_word_counts.values())
         for second_word in second_word_counts:
-            second_word_counts[second_word] /= total_count
-            
+            second_word_counts[second_word] /= total_count            
     return stats
 
 
@@ -49,9 +49,44 @@ def affiche_stats( stats):
     for key,values in stats.items():
         string += f'"{key}" est suivi par '
         string += " et ".join([f'"{k}" à {p*100}%' for k,p in values.items()])
-        string += '\n'
-            
+        string += '\n'            
     return string
+
+
+"""deuxieme partie du programme
+"""
+
+def pick_next_word( distrib):
+    """choisit un mot suivant les statistiques"""
+    
+    """
+    choisit le mot suivant en fonction du mot donné et des probabilités du modèle.
+    """
+    
+    probabilities = distrib
+    
+    # Si le mot n'est pas dans le modèle, retourner une chaîne vide
+    if not probabilities:
+        return ''
+    
+    words, probs = zip(*probabilities.items())
+    return random.choices(words, weights=probs, k=1)[0]
+
+def generate_text( stats, start_word, max_length=5):
+    """génère un texte à partir des statistiques """
+    
+    text = [start_word]
+    current_word = start_word
+    
+    for _ in range(max_length):
+        next_word = pick_next_word(stats[current_word])
+        if next_word == '':
+            break
+        text.append(next_word)
+        current_word = next_word
+        
+    return ' '.join(text)
+
 
 def main():
     test_text = "les hommes Libres peuvent rester libres ou bien vendre leur liberté"
@@ -59,6 +94,10 @@ def main():
     stats = calcul_stats(test_text)
     
     print(affiche_stats(stats))
+    
+    
+    
+    print(generate_text(stats, 'hommes'))
 
 
 if __name__ == "__main__":
