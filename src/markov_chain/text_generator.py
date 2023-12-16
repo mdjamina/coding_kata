@@ -72,16 +72,21 @@ def pick_next_word( distrib):
     words, probs = zip(*probabilities.items())
     return random.choices(words, weights=probs, k=1)[0]
 
-def generate_text( stats, start_word, max_length=5):
+def generate_text( stats, start_word=None, max_length=5):
     """génère un texte à partir des statistiques """
+    
+    # Choisir un mot aléatoire si aucun mot n'est donné
+    if start_word is None:
+        start_word = random.choice(list(stats.keys()))
     
     text = [start_word]
     current_word = start_word
     
-    for _ in range(max_length):
+    while len(text) < max_length:        
         next_word = pick_next_word(stats[current_word])
+        # Si le mot suivant est une chaîne vide, choisir un mot aléatoire
         if next_word == '':
-            break
+            next_word = random.choice(list(stats.keys()))
         text.append(next_word)
         current_word = next_word
         
@@ -97,7 +102,7 @@ def main():
     
     
     
-    print(generate_text(stats, 'hommes'))
+    print("Generated text:",generate_text(stats, start_word='hommes', max_length=10))
 
 
 if __name__ == "__main__":
